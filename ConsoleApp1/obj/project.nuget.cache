@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "j+T9r2pPSOlfJ32GEMKktmyA6RmfOJatYISFKXbYJ/88fyh1DxCLge/egQaeflx6i7QnBmOmZ9OduDVAavfcVQ==",
+  "success": true,
+  "projectFilePath": "D:\\github\\stresstest\\ConsoleApp1\\ConsoleApp1.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\rividemeo\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\7.0.1\\microsoft.extensions.logging.abstractions.7.0.1.nupkg.sha512",
+    "C:\\Users\\rividemeo\\.nuget\\packages\\mysqlconnector\\2.3.5\\mysqlconnector.2.3.5.nupkg.sha512",
+    "C:\\Users\\rividemeo\\.nuget\\packages\\system.diagnostics.diagnosticsource\\7.0.2\\system.diagnostics.diagnosticsource.7.0.2.nupkg.sha512",
+    "C:\\Users\\rividemeo\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
