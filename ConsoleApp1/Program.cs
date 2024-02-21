@@ -7,7 +7,7 @@ using MySqlConnector;
 class Program
 {
     //static string connectionString = "datasource=usdc2-lab-drproxy01.ring2.com;port=3306;username=ctnr_user;password=Ct4JkD@ta;database=number_routing_engr";
-    static string connectionString = "server=10.62.1.127;user=root;database=ct_number_routing_api-1123;port=3306;password=Loopers123";
+    static string connectionString = "server=10.62.1.77;user=root;database=ct_number_routing2;port=3306;password=7c225-201";
 
     static List<RoutingData> routingDataList = new List<RoutingData>();
 
@@ -24,7 +24,7 @@ class Program
 
     static void Main(string[] args)
     {
-        int numThreads = 10; // Change this to the desired number of threads
+        int numThreads = 50; // Change this to the desired number of threads
         List<Thread> threads = new List<Thread>();
 
         for (int i = 0; i < numThreads; i++)
@@ -39,7 +39,7 @@ class Program
             thread.Join();
         }
 
-        WriteListToCsv(routingDataList, "D:/output.csv");
+        WriteListToCsv(routingDataList, "D:/temp/output.csv");
         Console.WriteLine("All threads completed.");
     }
 
@@ -48,7 +48,7 @@ class Program
         Random random = new Random();
         MySqlConnection connection = new MySqlConnection(connectionString);
         connection.Open();
-        int iteration = 50;
+        int iteration = 1000;
 
         for (int i = 0; i < iteration; i++)
         {
@@ -72,15 +72,16 @@ class Program
 
                     while (reader.Read())
                     {
-                        Console.WriteLine("Thread {0}: Iteration: {1} - Ddi: {2}, RouteType: {3}, Destination: {4}, Priority: {5}, Elapsed Time: {6} milliseconds",
+                        Console.WriteLine("Thread {0}: Iteration: {1} - Ddi: {2}, Success, Elapsed Time: {6} milliseconds",
                             Thread.CurrentThread.ManagedThreadId, i + 1, reader["Ddi"], reader["RouteType"], reader["Destination"], reader["Priority"], elapsedTime.TotalMilliseconds);
-                        elapsedTime = DateTime.Now - startTime;
+                        //elapsedTime = DateTime.Now - startTime;
                         RoutingData data = new RoutingData
                         {
                             ThreadId = Thread.CurrentThread.ManagedThreadId,
                             Iteration = i + 1,
                             Ddi = reader["Ddi"].ToString(),
-                            RouteType = reader["RouteType"].ToString(),
+                            //RouteType = reader["RouteType"].ToString(),
+                            RouteType = "Success",
                             Destination = reader["Destination"].ToString(),
                             Priority = Convert.ToInt32(reader["Priority"]),
                             ElapsedTimeMilliseconds = elapsedTime.TotalMilliseconds
@@ -89,6 +90,7 @@ class Program
                         {
                             routingDataList.Add(data);
                         }
+                        break;
                     }
 
                     reader.Close();
@@ -126,13 +128,13 @@ class Program
         using (StreamWriter writer = new StreamWriter(filePath))
         {
             StringBuilder header = new StringBuilder();
-            header.Append("ThreadId,Iteration,Ddi,RouteType,Destination,Priority,ElapsedTimeMilliseconds");
+            header.Append("ThreadId,Iteration,Ddi,Status,ElapsedTimeMilliseconds");
             writer.WriteLine(header.ToString());
 
             foreach (var data in list)
             {
                 StringBuilder line = new StringBuilder();
-                line.Append($"{data.ThreadId},{data.Iteration},{data.Ddi},{data.RouteType},{data.Destination},{data.Priority},{data.ElapsedTimeMilliseconds}");
+                line.Append($"{data.ThreadId},{data.Iteration},{data.Ddi},{data.RouteType},{data.ElapsedTimeMilliseconds}");
                 writer.WriteLine(line.ToString());
             }
         }
