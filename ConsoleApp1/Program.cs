@@ -39,9 +39,10 @@ class Program
             viewName = "RoutingProxyReadModel";
             fileName = "LoadTesting_Non_Integer";
         }
-        int numThreads = 50; // Change this to the desired number of threads
+        int numThreads = 75; // Change this to the desired number of threads
         List<Thread> threads = new List<Thread>();
 
+        DateTime startTime = DateTime.UtcNow; // Record the start time
         for (int i = 0; i < numThreads; i++)
         {
             Thread thread = new Thread(new ThreadStart(StressTest));
@@ -56,9 +57,14 @@ class Program
 
         double averageElapsedTime = routingDataList.Average(r => r.ElapsedTimeMilliseconds);
         WriteListToCsv(routingDataList, $"D:/{fileName}_{numThreads}threads.csv", averageElapsedTime);
-        Console.WriteLine("All threads completed."); 
-        Console.WriteLine($"Average Elapsed Time for {fileName} " +
-            $"with {numThreads} threads: {averageElapsedTime} ms");
+        Console.WriteLine("All threads completed.");
+        DateTime endTime = DateTime.UtcNow; // Record the end time
+
+        TimeSpan elapsedTime = endTime - startTime; // Calculate the total elapsed time
+        Console.WriteLine($"Average Elapsed Time for {fileName} with {numThreads} threads: {averageElapsedTime} ms");
+        Console.WriteLine($"Time App Start: {startTime}");
+        Console.WriteLine($"Time App End: {endTime}");
+        Console.WriteLine($"Duration Execution of Application: {elapsedTime.TotalMilliseconds} ms");
     }
 
     public static void StressTest()
@@ -66,7 +72,7 @@ class Program
         Random random = new Random();
         MySqlConnection connection = new MySqlConnection(connectionString);
         connection.Open();
-        int iteration = 3;
+        int iteration = 1;
 
         for (int i = 0; i < iteration; i++)
         {
