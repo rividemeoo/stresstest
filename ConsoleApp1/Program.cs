@@ -9,7 +9,7 @@ class Program
     //static string connectionString = "datasource=usdc2-lab-drproxy01.ring2.com;port=3306;username=ctnr_user;password=Ct4JkD@ta;database=number_routing_engr";
     static string connectionString = "server=10.62.1.127;user=root;database=ct_number_routing_api_loadtest;port=3306;password=Loopers123";
     static List<RoutingData> routingDataList = new List<RoutingData>();
-    static bool isInteger = true;
+    static bool isInteger = false;
     static string tableName = "";
     static string viewName = "";
     static string fileName = "";
@@ -39,7 +39,7 @@ class Program
             viewName = "RoutingProxyReadModel";
             fileName = "LoadTesting_Non_Integer";
         }
-        int numThreads = 75; // Change this to the desired number of threads
+        int numThreads = 50; // Change this to the desired number of threads
         List<Thread> threads = new List<Thread>();
 
         DateTime startTime = DateTime.UtcNow; // Record the start time
@@ -61,10 +61,12 @@ class Program
         DateTime endTime = DateTime.UtcNow; // Record the end time
 
         TimeSpan elapsedTime = endTime - startTime; // Calculate the total elapsed time
+        Console.WriteLine($"======================================================================================");
         Console.WriteLine($"Average Elapsed Time for {fileName} with {numThreads} threads: {averageElapsedTime} ms");
         Console.WriteLine($"Time App Start: {startTime}");
         Console.WriteLine($"Time App End: {endTime}");
         Console.WriteLine($"Duration Execution of Application: {elapsedTime.TotalMilliseconds} ms");
+        Console.ReadLine();
     }
 
     public static void StressTest()
@@ -72,7 +74,7 @@ class Program
         Random random = new Random();
         MySqlConnection connection = new MySqlConnection(connectionString);
         connection.Open();
-        int iteration = 1;
+        int iteration = 10;
 
         for (int i = 0; i < iteration; i++)
         {
@@ -80,14 +82,14 @@ class Program
             {
                 // Select a random ddi from the 'numbers' table
                 MySqlCommand selectDdiCommand = connection.CreateCommand();
-                selectDdiCommand.CommandText = "SELECT ddi FROM Numbers ORDER BY RAND() LIMIT 1";
+                selectDdiCommand.CommandText = $"SELECT ddi FROM {tableName} ORDER BY RAND() LIMIT 1";
                 object randomDdi = selectDdiCommand.ExecuteScalar();
 
                 if (randomDdi != null)
                 {
                     // Use the randomly selected ddi to query the 'RoutingProxyReadModel' table
                     MySqlCommand selectFromRoutingProxyCommand = connection.CreateCommand();
-                    selectFromRoutingProxyCommand.CommandText = "SELECT * FROM RoutingProxyReadModel WHERE Ddi = @ddi";
+                    selectFromRoutingProxyCommand.CommandText = $"SELECT * FROM {viewName} WHERE Ddi = @ddi";
                     selectFromRoutingProxyCommand.Parameters.AddWithValue("@ddi", randomDdi);
 
                     DateTime startTime = DateTime.Now;
