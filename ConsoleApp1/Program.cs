@@ -7,9 +7,12 @@ using MySqlConnector;
 class Program
 {
     //static string connectionString = "datasource=usdc2-lab-drproxy01.ring2.com;port=3306;username=ctnr_user;password=Ct4JkD@ta;database=number_routing_engr";
-    static string connectionString = "server=10.62.1.77;user=root;database=ct_number_routing2;port=3306;password=7c225-201";
-
+    static string connectionString = "server=10.62.1.127;user=root;database=ct_number_routing_api_loadtest;port=3306;password=Loopers123";
     static List<RoutingData> routingDataList = new List<RoutingData>();
+    static bool isInteger = true;
+    static string tableName = "";
+    static string viewName = "";
+    static string fileName = "";
 
     public class RoutingData
     {
@@ -24,6 +27,18 @@ class Program
 
     static void Main(string[] args)
     {
+        if (isInteger)
+        {
+            tableName = "Numbers_INT";
+            viewName = "RoutingProxyReadModel_int";
+            fileName = "LoadTesting_Integer";
+        }
+        else
+        {
+            tableName = "Numbers";
+            viewName = "RoutingProxyReadModel";
+            fileName = "LoadTesting_Non_Integer";
+        }
         int numThreads = 50; // Change this to the desired number of threads
         List<Thread> threads = new List<Thread>();
 
@@ -39,8 +54,11 @@ class Program
             thread.Join();
         }
 
-        WriteListToCsv(routingDataList, "D:/temp/output.csv");
-        Console.WriteLine("All threads completed.");
+        double averageElapsedTime = routingDataList.Average(r => r.ElapsedTimeMilliseconds);
+        WriteListToCsv(routingDataList, $"D:/{fileName}_{numThreads}threads.csv", averageElapsedTime);
+        Console.WriteLine("All threads completed."); 
+        Console.WriteLine($"Average Elapsed Time for {fileName} " +
+            $"with {numThreads} threads: {averageElapsedTime} ms");
     }
 
     public static void StressTest()
@@ -48,7 +66,7 @@ class Program
         Random random = new Random();
         MySqlConnection connection = new MySqlConnection(connectionString);
         connection.Open();
-        int iteration = 1000;
+        int iteration = 3;
 
         for (int i = 0; i < iteration; i++)
         {
@@ -56,7 +74,7 @@ class Program
             {
                 // Select a random ddi from the 'numbers' table
                 MySqlCommand selectDdiCommand = connection.CreateCommand();
-                selectDdiCommand.CommandText = "SELECT ddi FROM Numbers where siptrunkid is not null ORDER BY RAND() LIMIT 1";
+                selectDdiCommand.CommandText = "SELECT ddi FROM Numbers ORDER BY RAND() LIMIT 1";
                 object randomDdi = selectDdiCommand.ExecuteScalar();
 
                 if (randomDdi != null)
@@ -123,18 +141,18 @@ class Program
     }
 
 
-    static void WriteListToCsv(List<RoutingData> list, string filePath)
+    static void WriteListToCsv(List<RoutingData> list, string filePath, double averageElapsedTime)
     {
         using (StreamWriter writer = new StreamWriter(filePath))
         {
             StringBuilder header = new StringBuilder();
-            header.Append("ThreadId,Iteration,Ddi,Status,ElapsedTimeMilliseconds");
+            header.Append("ThreadId,Iteration,Ddi,Status,ElapsedTimeMilliseconds,AverageElapsedTime");
             writer.WriteLine(header.ToString());
 
             foreach (var data in list)
             {
                 StringBuilder line = new StringBuilder();
-                line.Append($"{data.ThreadId},{data.Iteration},{data.Ddi},{data.RouteType},{data.ElapsedTimeMilliseconds}");
+                line.Append($"{data.ThreadId},{data.Iteration},{data.Ddi},{data.RouteType},{data.ElapsedTimeMilliseconds},{averageElapsedTime}");
                 writer.WriteLine(line.ToString());
             }
         }
